@@ -6,9 +6,7 @@ a0 = Pin(14, Pin.OUT)	#OPL3	14
 a1 = Pin(15, Pin.OUT)	#OPL3	15
 latch = Pin(17, Pin.OUT)#OPL3	17
 reset = Pin(16, Pin.OUT)#OPL3 clear
-shift_latch = Pin(22, Pin.OUT)#shift register
-
-   
+shift_latch = Pin(22, Pin.OUT)#shift register   
 
     # Initialize SPI //data=mosi shift=sck
 spi = SPI(0,
@@ -76,22 +74,18 @@ def opl3_init(offset, frequency): #channel offset, frequency select
     opl3_write(0xe0 + offset, 0x03)  # 
     opl3_write(0xb0 + offset, 0x22)  # Turn the voice on; set the octave and freq MSB
     opl3_write(0xc0 + offset, 0x00)  # feedback , algoritmh
-    opl3_write(0xbd + offset, 0x00)
-    #time.sleep(1)
-    #opl3_write(0xb0 + offset, 0x01)  # Turn the voice off; set the octave and freq MSB
-    #time.sleep(0.2)
+    opl3_write(0xbd + offset, 0x00)  
+    time.sleep(0.2)
 
 
 opl3_init(1, 50)
 opl3_write(0xb0, 0x01)
 
-opl3_write(0xb0, 0x22)
-#opl3_write(random.getrandbits(8), random.getrandbits(8))
+opl3_write(0xb0, 0x22) # turn on voice
 
 
-opl3_write(152, 5) #dulezite
-opl3_write(31, 200) #dulezite
-
+opl3_write(152, 5) #voice
+opl3_write(31, 200) #voice
 
 #musi byt jeden radek, jinak nehraje
 opl3_write(254, 100) #meni ton kdyz neni

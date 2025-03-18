@@ -105,7 +105,7 @@ def opl3_init(offset, frequency): #channel offset, frequency select
     time.sleep(0.2)
 
 opl3_reset()
-opl3_init(1, 52)
+
 opl3_write(0xb0, 0x01)
 
 while True:

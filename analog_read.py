@@ -27,7 +27,7 @@ def analog_read():
         B3.value(idk & 0b0010_0000)
         C3.value(idk & 0b0100_0000)
         time.sleep_us(1)
-        arr_analog[x] = adc1.read_u16()>>10
+        arr_analog[x] = adc1.read_u16()>>8
         
 while True:
     analog_read()    

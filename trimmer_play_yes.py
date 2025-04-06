@@ -19,23 +19,22 @@ A3 = Pin(11, Pin.OUT)    #analog multiplexer
 B3 = Pin(12, Pin.OUT)    #analog multiplexer
 C3 = Pin(13, Pin.OUT)    #analog multiplexer
 
-array2 = [0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 7, 0, 3, 2, 1, 0, ]
 arr_byte = bytearray([0x50,0x70,0x60,0x05,0x06]) #numero tres jsou "nizsi multiplexer"
-arr_analog = [0, 0, 0, 0, 0 ]
-rx_buttons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ]
-arr_byte_but = bytearray([0b0010_1000,0b0011_1000,0b0011_0000,0b0000_0101,0b0000_0110])
-#print("opl 3")
+arr_analog = [0, 0, 0, 0, 0 ] # analog arry
+rx_buttons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ] # array for recieving buttons
+arr_byte_but = bytearray([0b0010_1000,0b0011_1000,0b0011_0000,0b0000_0101,0b0000_0110]) # array for order of buttons
+array2 = [0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 7, 0, 3, 2, 1, 0, ] # array that defines what button should do
 
     # Initialize SPI //data=mosi shift=sck
 spi1 = SPI(0,
-          baudrate=400000,
-          polarity=0,
-          phase=0,
-          bits=8,
-          firstbit=SPI.MSB,
-          sck=Pin(2),
-          mosi=Pin(3),
-          miso=(4))
+    baudrate=400000,
+    polarity=0,
+    phase=0,
+    bits=8,
+    firstbit=SPI.MSB,
+    sck=Pin(2),
+    mosi=Pin(3),
+    miso=(4))
 
 spi = SPI(0,
     baudrate=400000,
@@ -46,7 +45,6 @@ spi = SPI(0,
     sck=Pin(18),
     mosi=Pin(19)) 
 reset = Pin(16, Pin.OUT)#must be here because micropython
-    
 
 latch.value(1)
 reset.value(1)
@@ -64,35 +62,11 @@ def opl2_write(register, low_value): #low_value = value of "lower" register
     a0.value(0)  # Set A0, A1 low to indicate it's a lower register address
     spi.write(bytearray([register]))
     latch.value(0)
-    
-    shift_latch.value(1)
-    shift_latch.value(0)
     latch.value(1)  # Latch the lower register address
-        
+    
     a0.value(1)  # Set A0 high to indicate it's data
     spi.write(bytearray([low_value]))
     latch.value(0)
-    
-    shift_latch.value(1)
-    shift_latch.value(0)
-    latch.value(1)  # Latch the data to lower register
-
-def opl4_write(register, low_value): #low_value = value of "lower" register
-    a1.value(0)
-    a0.value(1)  # Set A0, A1 low to indicate it's a lower register address
-    spi.write(bytearray([register]))
-    latch.value(0)
-    
-    shift_latch.value(1)
-    shift_latch.value(0)
-    latch.value(1)  # Latch the lower register address
-        
-    a1.value(1)  # Set A0 high to indicate it's data
-    spi.write(bytearray([low_value]))
-    latch.value(0)
-    
-    shift_latch.value(1)
-    shift_latch.value(0)
     latch.value(1)  # Latch the data to lower register
 
 def opl3_write(register, low_value, high_value): #low_value = value of "lower" register
@@ -100,35 +74,23 @@ def opl3_write(register, low_value, high_value): #low_value = value of "lower" r
     a0.value(0)  # Set A0, A1 low to indicate it's a lower register address
     spi.write(bytearray([register]))
     latch.value(0)
-    
-    shift_latch.value(1)
-    shift_latch.value(0)
     latch.value(1)  # Latch the lower register address
         
     a0.value(1)  # Set A0 high to indicate it's data
     spi.write(bytearray([low_value]))
     latch.value(0)
-    
-    shift_latch.value(1)
-    shift_latch.value(0)
     latch.value(1)  # Latch the data to lower register
     
     a0.value(0)    
     a1.value(1)# Set A0 low and A1 high to indicate it's a higher register address
     spi.write(bytearray([register]))
     latch.value(0)
-    shift_latch.value(1)
-    shift_latch.value(0)
     latch.value(1)  # Latch the higher register address
 
     a0.value(1)  # Set A0 high to indicate it's data, A1 dont care
     spi.write(bytearray([high_value]))
     latch.value(0)
-    
-    shift_latch.value(1)
-    shift_latch.value(0)
     latch.value(1)  # Latch the data to higher register
-    
     a1.value(0)
 
 def opl3_init(frequency, offset): #channel offset, frequency select
@@ -143,18 +105,9 @@ def opl3_init(frequency, offset): #channel offset, frequency select
     opl3_write(0x63 + offset, 0x30, 0x30)  # Carrier attack:  quick;   decay:   long
     opl3_write(0x83 + offset, 0x33, 0x33)  # Carrier sustain: medium;  release: medium
     opl3_write(0xe3 + offset, 0x01, 0x03)  #
-    #opl3_write(0xe0, 0x00, 0x01)  # 
     opl3_write(0xb0 + offset, 0x22, 0x22)  # Turn the voice on; set the octave and freq MSB
     opl3_write(0xc0 + offset, 0xf0, 0xf0)  # feedback , algoritmh
     opl3_write(0xbd + offset, 0x00, 0x00)
-    #opl3_write(0xE0 + offset, 0xc0, 0xc0)
-    #time.sleep(1)
-    #opl2_write(0xb0 + offset, 0x01)  # Turn the voice off; set the octave and freq MSB
-    #time.sleep(0.2)
-
-#opl2_init(1, 50)
-
-#opl3_init(200)  # Turn the voice on; set the octave and freq MSB
 
 def analog_read():
     n = len(arr_byte)

@@ -11,7 +11,7 @@ A3 = Pin(11, Pin.OUT)    #analog multiplexer
 B3 = Pin(12, Pin.OUT)    #analog multiplexer
 C3 = Pin(13, Pin.OUT)    #analog multiplexer
 
-arr_byte = bytearray([0x01,0x20,0x40,0x50,0x60]) #numero tres jsou "nizsi multiplexer"
+arr_byte = bytearray([0x50,0x70,0x60,0x05,0x06]) #numero tres jsou "nizsi multiplexer"
 
 arr_analog = [0, 0, 0, 0, 0, 0, 0, 0, ]
 

@@ -102,8 +102,8 @@ def opl3_init(frequency, offset): #channel offset, frequency select
     opl3_write(0x23 + offset, 0x07, 0x0f)  # Set the carrier's multiple to 1
     opl3_write(0xa0 + offset, 0x00 + frequency, 0x00 + frequency)  # Set frequency number
     opl3_write(0x43 + offset, 0x04, 0x04)  # Set the carrier to maximum volume (about 47 dB)
-    opl3_write(0x63 + offset, 0x30, 0x30)  # Carrier attack:  quick;   decay:   long
-    opl3_write(0x83 + offset, 0x33, 0x33)  # Carrier sustain: medium;  release: medium
+    #opl3_write(0x63 + offset, 0x30, 0x30)  # Carrier attack:  quick;   decay:   long
+    #opl3_write(0x83 + offset, 0x33, 0x33)  # Carrier sustain: medium;  release: medium
     opl3_write(0xe3 + offset, 0x01, 0x03)  #
     opl3_write(0xb0 + offset, 0x22, 0x22)  # Turn the voice on; set the octave and freq MSB
     opl3_write(0xc0 + offset, 0xf0, 0xf0)  # feedback , algoritmh
@@ -128,15 +128,29 @@ def button_read():
     data = spi1.read(2, 0x00)
     cs1.value(1)
     return [(int.from_bytes(data, 'big') >> (15 - i)) & 1 for i in range(16)]
+triggered = 0
 
 opl_reset()
 opl3_init(0, 0)
 opl3_init(0, 1)
+previous_press = 1
 while True:
     analog_read()
     opl3_write(0xa0, arr_analog[0], arr_analog[0])
     opl3_write(0xa0 + 1, arr_analog[1], arr_analog[1])
+    opl3_write(0x63, arr_analog[2], arr_analog[2])
+    opl3_write(0x63 + 1, arr_analog[3], arr_analog[3])
     for button_number in range(len(button_read())):
-        if button_read()[button_number] == 0:  # Check if the button is pressed
+        if button_read()[button_number] == 0:  # Check if the button is pressed and play diffrent waveform depending on array2
             opl3_write(0xe3, 0x00, 0x00 + array2[button_number])
-            opl3_write(0xe4, 0x00, 0x00 + array2[button_number])
+            opl3_write(0xe3 + 1, 0x00, 0x00 + array2[button_number])
+    if button_read()[6] == 0 and previous_press == 1 and not triggered : #button for opl reset
+        print("kaso")
+        opl_reset()
+        opl3_init(0, 0)
+        opl3_init(0, 1)
+        triggered = 1
+    if button_read()[6] == 1 and previous_press == 0: triggered = 0 #debounce for opl reset button
+    #print(button_read())
+    time.sleep_ms(5)
+    previous_press = button_read()[6]
